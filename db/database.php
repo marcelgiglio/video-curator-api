@@ -21,11 +21,11 @@ class Database {
     }
 
     private function loadDbConfig() {
-        // Supondo que as configurações estão definidas em variáveis de ambiente
-        $this->host = getenv('DB_HOST');
-        $this->db_name = getenv('DB_NAME');
-        $this->username = getenv('DB_USER');
-        $this->password = getenv('DB_PASS');
+        // Usando as constantes definidas no config.php
+        $this->host = DB_HOST;
+        $this->db_name = DB_NAME;
+        $this->username = DB_USER;
+        $this->password = DB_PASS;
     }
 
     private function connect() {
