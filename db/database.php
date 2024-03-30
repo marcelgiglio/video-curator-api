@@ -1,23 +1,46 @@
 <?php
 
 class Database {
-    private $host = DB_HOST;
-    private $db_name = DB_NAME;
-    private $username = DB_USER;
-    private $password = DB_PASS;
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
     private $conn;
 
-    public function connect() {
+    public function __construct() {
+        // Carrega configurações do banco de dados
+        $this->loadDbConfig();
+
+        // Estabelece conexão com o banco de dados
+        $this->connect();
+
+        // Configurações iniciais
+        $this->setInitialSettings();
+    }
+
+    private function loadDbConfig() {
+        // Supondo que as configurações estão definidas em variáveis de ambiente
+        $this->host = getenv('DB_HOST');
+        $this->db_name = getenv('DB_NAME');
+        $this->username = getenv('DB_USER');
+        $this->password = getenv('DB_PASS');
+    }
+
+    private function connect() {
         $this->conn = null;
 
         try {
-            $this->conn = new PDO('mysql:host=' . $this->host . ';dbname=' . $this->db_name, $this->username, $this->password);
+            $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->db_name;
+            $this->conn = new PDO($dsn, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            echo 'Connection Error: ' . $e->getMessage();
+            $this->logError('Connection Error: ' . $e->getMessage());
         }
+    }
 
-        return $this->conn;
+    private function setInitialSettings() {
+        // Define o fuso horário padrão, se necessário, ou outras configurações iniciais
+        date_default_timezone_set('America/Sao_Paulo'); // Exemplo de fuso horário
     }
 
     public function executeQuery($sql, $params = []) {
@@ -34,13 +57,25 @@ class Database {
             return false;
         }
     }
-    
-    private function logError($message) {
-        // Implemente a lógica de log aqui.
-        // Pode ser um arquivo de log, um sistema de monitoramento de erros, etc.
-        // Exemplo: error_log($message, 3, "/path/to/your/logs/error.log");
-    }    
 
+    private function logError($message) {
+        // Define o caminho do arquivo de log
+        $logFilePath = __DIR__ . '/../log/error.log';
+    
+        // Obtém a data e hora atual
+        $currentTime = date('Y-m-d H:i:s');
+    
+        // Formata a mensagem de log
+        $logMessage = "[$currentTime] ERROR: $message\n";
+    
+        // Escreve a mensagem de erro no arquivo de log
+        // Usando o flag FILE_APPEND para adicionar ao arquivo em vez de sobrescrevê-lo
+        // E LOCK_EX para evitar que qualquer outro processo escreva no arquivo ao mesmo tempo
+        file_put_contents($logFilePath, $logMessage, FILE_APPEND | LOCK_EX);
+    }
+
+    // Métodos CRUD genéricos...
+    
     public function fetchAll($sql, $params = []) {
         $stmt = $this->executeQuery($sql, $params);
         return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
@@ -57,8 +92,9 @@ class Database {
         $placeholders = ":" . implode(", :", $keys);
 
         $sql = "INSERT INTO $table ($fields) VALUES ($placeholders)";
-        $this->executeQuery($sql, $data);
-        return $this->conn->lastInsertId();
+        $stmt = $this->executeQuery($sql, $data);
+        
+        return $stmt ? $this->conn->lastInsertId() : false;
     }
 
     public function update($table, $data, $condition) {
@@ -67,11 +103,13 @@ class Database {
         }, array_keys($data));
 
         $sql = "UPDATE $table SET " . implode(", ", $updates) . " WHERE $condition";
-        $this->executeQuery($sql, $data);
+        return $this->executeQuery($sql, $data) !== false;
     }
 
     public function delete($table, $condition) {
         $sql = "DELETE FROM $table WHERE $condition";
-        $this->executeQuery($sql);
+        return $this->executeQuery($sql) !== false;
     }
 }
+
+

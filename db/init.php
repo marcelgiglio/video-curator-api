@@ -48,5 +48,5 @@ function createTables() {
 
 // Chama a função para criar as tabelas
 createTables();
-
+$db->closeConnection();
 ?>
