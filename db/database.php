@@ -111,5 +111,3 @@ class Database {
         return $this->executeQuery($sql) !== false;
     }
 }
-
-
