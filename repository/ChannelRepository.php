@@ -90,4 +90,30 @@ class ChannelRepository {
         ];
         return $this->db->fetchAll($sql, $params);
     }
+
+    // Busca um canal pelo nome
+    public function getChannelByName($name) {
+        $sql = "SELECT * FROM {$this->table} WHERE name = :name";
+        $params = ['name' => $name];
+        return $this->db->fetchOne($sql, $params);
+    }
+
+    // Busca canais recentemente adicionados (últimos 30 dias)
+    public function getRecentChannels() {
+        $sql = "SELECT * FROM {$this->table} WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+        return $this->db->fetchAll($sql);
+    }
+
+    // Conta canais por idioma
+    public function countChannelsByLanguage() {
+        $sql = "SELECT language, COUNT(*) as count FROM {$this->table} GROUP BY language ORDER BY count DESC";
+        return $this->db->fetchAll($sql);
+    }
+
+    // Conta canais por país
+    public function countChannelsByCountry() {
+        $sql = "SELECT country, COUNT(*) as count FROM {$this->table} GROUP BY country ORDER BY count DESC";
+        return $this->db->fetchAll($sql);
+    }
 }
+
