@@ -112,4 +112,9 @@ class Database {
         $sql = "DELETE FROM $table WHERE $condition";
         return $this->executeQuery($sql) !== false;
     }
+
+    public function closeConnection() {
+        $this->conn = null;
+    }
+    
 }

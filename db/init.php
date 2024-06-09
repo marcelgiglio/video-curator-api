@@ -1,11 +1,11 @@
 <?php
 
-require_once 'database.php'; // Inclui o arquivo com as funções de banco de dados
+require_once __DIR__ . '/database.php';
 
-function createTables() {
+function createTables($db) {
     $createChannelsTable = "
         CREATE TABLE IF NOT EXISTS channels (
-            channel_id INT PRIMARY KEY,
+            channel_id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255),
             country VARCHAR(255),
             language VARCHAR(255),
@@ -16,7 +16,7 @@ function createTables() {
 
     $createVideosTable = "
         CREATE TABLE IF NOT EXISTS videos (
-            video_id INT PRIMARY KEY,
+            video_id INT AUTO_INCREMENT PRIMARY KEY,
             channel_id INT,
             title VARCHAR(255),
             description TEXT,
@@ -31,7 +31,7 @@ function createTables() {
 
     $createVideoTranslationsTable = "
         CREATE TABLE IF NOT EXISTS video_translations (
-            translation_id INT PRIMARY KEY,
+            translation_id INT AUTO_INCREMENT PRIMARY KEY,
             video_id INT,
             language VARCHAR(255),
             translated_title VARCHAR(255),
@@ -49,13 +49,17 @@ function createTables() {
     ";
 
     // Executa as queries para criar as tabelas
-    executeQuery($createChannelsTable);
-    executeQuery($createVideosTable);
-    executeQuery($createVideoTranslationsTable);
-    executeQuery($createLanguagesTable);
+    $db->executeQuery($createChannelsTable);
+    $db->executeQuery($createVideosTable);
+    $db->executeQuery($createVideoTranslationsTable);
+    $db->executeQuery($createLanguagesTable);
 }
 
+// Instancia a classe Database
+$db = new Database();
+
 // Chama a função para criar as tabelas
-createTables();
+createTables($db);
+
+// Fecha a conexão
 $db->closeConnection();
-?>
