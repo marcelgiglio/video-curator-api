@@ -69,4 +69,19 @@ class VideoRepository {
         return $this->db->fetchAll($sql, $params);
     }
     
+    // Função para retornar vídeos recentes
+    public function getRecentVideos() {
+        $sql = "SELECT * FROM {$this->table} WHERE publication_date >= DATE_SUB(NOW(), INTERVAL 14 DAY) ORDER BY publication_date DESC";
+        return $this->db->fetchAll($sql);
+    }
+
+    // Função para retornar vídeos recentes por país
+    public function getRecentVideosByCountry($country) {
+        $sql = "SELECT v.* FROM {$this->table} v
+                JOIN channels c ON v.channel_id = c.channel_id
+                WHERE c.country = :country AND v.publication_date >= DATE_SUB(NOW(), INTERVAL 14 DAY)
+                ORDER BY v.publication_date DESC";
+        $params = ['country' => $country];
+        return $this->db->fetchAll($sql, $params);
+    }
 }

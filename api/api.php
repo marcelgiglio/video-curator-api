@@ -15,4 +15,6 @@ if (preg_match('#^/api/channels#', $uri)) {
     exit;
 }
 
-route($routes);
+Route::run('/api');
+
+?>

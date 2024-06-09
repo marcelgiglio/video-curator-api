@@ -45,7 +45,7 @@ class Database {
         date_default_timezone_set('America/Sao_Paulo'); // Exemplo de fuso horário
     }
 
-    public function ($sql, $params = []) {
+    public function executeQuery($sql, $params = []) {
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
