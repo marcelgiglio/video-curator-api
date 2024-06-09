@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../log/log.php';
 
 class Database {
     private $host;
@@ -35,8 +36,13 @@ class Database {
             $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->db_name;
             $this->conn = new PDO($dsn, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            
+            // Define o charset da conexão para UTF-8
+            $this->conn->exec("SET NAMES 'utf8mb4'");
+            $this->conn->exec("SET CHARACTER SET utf8mb4");
+            $this->conn->exec("SET COLLATION_CONNECTION = 'utf8mb4_unicode_ci'");
         } catch (PDOException $e) {
-            $this->logError('Connection Error: ' . $e->getMessage());
+            logError('Connection Error: ' . $e->getMessage());
         }
     }
 
@@ -53,27 +59,11 @@ class Database {
         } catch(PDOException $e) {
             // Loga o erro internamente, sem expor detalhes ao usuário.
             // A função logError é um placeholder para sua implementação de log.
-            $this->logError($e->getMessage());
-    
+            logError($e->getMessage());
+
             // Retorna false para indicar falha na execução.
             return false;
         }
-    }
-
-    private function logError($message) {
-        // Define o caminho do arquivo de log
-        $logFilePath = __DIR__ . '/../log/error.log';
-    
-        // Obtém a data e hora atual
-        $currentTime = date('Y-m-d H:i:s');
-    
-        // Formata a mensagem de log
-        $logMessage = "[$currentTime] ERROR: $message\n";
-    
-        // Escreve a mensagem de erro no arquivo de log
-        // Usando o flag FILE_APPEND para adicionar ao arquivo em vez de sobrescrevê-lo
-        // E LOCK_EX para evitar que qualquer outro processo escreva no arquivo ao mesmo tempo
-        file_put_contents($logFilePath, $logMessage, FILE_APPEND | LOCK_EX);
     }
 
     // Métodos CRUD genéricos...

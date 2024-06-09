@@ -11,8 +11,9 @@ class VideoRepository {
     }
 
     // Adiciona um novo vídeo ao banco de dados
-    public function addVideo($channel_id, $title, $description, $original_language, $publication_date, $duration, $url, $thumbnail) {
+    public function addVideo($video_id, $channel_id, $title, $description, $original_language, $publication_date, $duration, $url, $thumbnail) {
         $data = [
+            'video_id' => $video_id,
             'channel_id' => $channel_id,
             'title' => $title,
             'description' => $description,
@@ -24,6 +25,7 @@ class VideoRepository {
         ];
         return $this->db->insert($this->table, $data);
     }
+
     
     // Busca o último vídeo por canal
     public function getLastVideoByChannelId($channel_id) {
@@ -38,7 +40,7 @@ class VideoRepository {
         $params = ['video_id' => $video_id];
         return count($this->db->fetchAll($sql, $params)) > 0;
     }
-    
+
     // Busca um vídeo pelo ID
     public function getVideoById($video_id) {
         $sql = "SELECT * FROM {$this->table} WHERE video_id = :video_id";
