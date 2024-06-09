@@ -1,58 +1,97 @@
 <?php
 
-require_once __DIR__ . '/../db/database.php';
+require_once __DIR__ . '/../repository/ChannelRepository.php';
+require_once __DIR__ . '/../repository/VideoRepository.php';
+require_once __DIR__ . '/../repository/VideoTranslationRepository.php';
+require_once __DIR__ . '/../translate/TranslateService.php';
+require_once __DIR__ . '/YouTubeDataAPI.php';
 
-class VideoTranslationRepository {
-    private $db;
-    private $table = 'video_translations';
+class DailyVideoUpdater {
+    private $youtubeApi;
+    private $videoRepository;
+    private $channelRepository;
+    private $translationRepository;
+    private $translateService;
 
     public function __construct() {
-        $this->db = new Database();
+        $this->youtubeApi = new YouTubeDataAPI();
+        $this->videoRepository = new VideoRepository();
+        $this->channelRepository = new ChannelRepository();
+        $this->translationRepository = new VideoTranslationRepository();
+        $this->translateService = new TranslateService();
     }
 
-    // Adiciona uma nova tradução de vídeo ao banco de dados
-    public function addVideoTranslation($video_id, $language, $translated_title, $translated_description) {
-        $data = [
-            'video_id' => $video_id,
-            'language' => $language,
-            'translated_title' => $translated_title,
-            'translated_description' => $translated_description
-        ];
-        return $this->db->insert($this->table, $data);
+    public function updateVideos() {
+        $channels = $this->channelRepository->listChannels();
+
+        foreach ($channels as $channel) {
+            $lastVideo = $this->videoRepository->getLastVideoByChannelId($channel['channel_id']);
+            $publishedAfter = $lastVideo ? $lastVideo['publication_date'] : null;
+
+            $videos = $this->youtubeApi->getVideosByChannel($channel['channel_id'], $publishedAfter);
+
+            foreach ($videos['items'] as $video) {
+                $videoId = $video['id']['videoId'];
+                if (!$this->videoRepository->videoExists($videoId)) {
+                    $videoDetails = $this->youtubeApi->getVideoDetails($videoId);
+
+                    // Download e salvamento da thumbnail
+                    $thumbnailUrl = $videoDetails['items'][0]['snippet']['thumbnails']['default']['url'];
+                    $thumbnailPath = $this->saveThumbnail($thumbnailUrl, $videoId);
+
+                    $originalLanguage = $videoDetails['items'][0]['snippet']['defaultAudioLanguage'] ?? 'en';
+
+                    $this->videoRepository->addVideo(
+                        $channel['channel_id'],
+                        $videoDetails['items'][0]['snippet']['title'],
+                        $videoDetails['items'][0]['snippet']['description'],
+                        $originalLanguage,
+                        $videoDetails['items'][0]['snippet']['publishedAt'],
+                        $videoDetails['items'][0]['contentDetails']['duration'],
+                        'https://www.youtube.com/watch?v=' . $videoId,
+                        $thumbnailPath
+                    );
+
+                    // Adiciona traduções
+                    $this->translateAndSave(
+                        $videoId,
+                        $videoDetails['items'][0]['snippet']['title'],
+                        $videoDetails['items'][0]['snippet']['description'],
+                        $originalLanguage
+                    );
+                }
+            }
+        }
     }
 
-    // Busca uma tradução de vídeo pelo ID da tradução
-    public function getVideoTranslationById($translation_id) {
-        $sql = "SELECT * FROM {$this->table} WHERE translation_id = :translation_id";
-        $params = ['translation_id' => $translation_id];
-        return $this->db->fetchOne($sql, $params);
+    private function saveThumbnail($url, $videoId) {
+        $thumbnailDir = __DIR__ . '/../thumbnails/';
+        if (!is_dir($thumbnailDir)) {
+            mkdir($thumbnailDir, 0755, true);
+        }
+
+        $thumbnailPath = $thumbnailDir . $videoId . '.jpg';
+        file_put_contents($thumbnailPath, file_get_contents($url));
+
+        return 'thumbnails/' . $videoId . '.jpg';
     }
 
-    // Atualiza os dados de uma tradução de vídeo
-    public function updateVideoTranslation($translation_id, $video_id, $language, $translated_title, $translated_description) {
-        $data = [
-            'video_id' => $video_id,
-            'language' => $language,
-            'translated_title' => $translated_title,
-            'translated_description' => $translated_description
-        ];
-        $condition = "translation_id = :translation_id";
-        $data['translation_id'] = $translation_id; // Adiciona o translation_id ao array de dados para usar no placeholder da condição
-        return $this->db->update($this->table, $data, $condition);
+    private function translateAndSave($videoId, $title, $description, $sourceLang) {
+        $translationsTitle = $this->translateService->translateAll($title, $sourceLang);
+        $translationsDescription = $this->translateService->translateAll($description, $sourceLang);
+        
+        foreach ($translationsTitle as $lang => $translatedTitle) {
+            $translatedDescription = $translationsDescription[$lang];
+            $this->translationRepository->addVideoTranslation(
+                $videoId,
+                $lang,
+                $translatedTitle,
+                $translatedDescription
+            );
+        }
     }
-
-    // Exclui uma tradução de vídeo pelo ID da tradução
-    public function deleteVideoTranslation($translation_id) {
-        $condition = "translation_id = :translation_id";
-        $params = ['translation_id' => $translation_id];
-        return $this->db->delete($this->table, $condition, $params);
-    }
-
-    // Lista todas as traduções de um vídeo específico
-    public function listTranslationsForVideo($video_id) {
-        $sql = "SELECT * FROM {$this->table} WHERE video_id = :video_id";
-        $params = ['video_id' => $video_id];
-        return $this->db->fetchAll($sql, $params);
-    }
-
 }
+
+// Exemplo de uso
+$updater = new DailyVideoUpdater();
+$updater->updateVideos();
