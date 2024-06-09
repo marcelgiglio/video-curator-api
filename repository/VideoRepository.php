@@ -24,7 +24,21 @@ class VideoRepository {
         ];
         return $this->db->insert($this->table, $data);
     }
+    
+    // Busca o último vídeo por canal
+    public function getLastVideoByChannelId($channel_id) {
+        $sql = "SELECT * FROM {$this->table} WHERE channel_id = :channel_id ORDER BY publication_date DESC LIMIT 1";
+        $params = ['channel_id' => $channel_id];
+        return $this->db->fetchOne($sql, $params);
+    }
 
+    // Verifica se um vídeo existe no BD
+    public function videoExists($video_id) {
+        $sql = "SELECT video_id FROM {$this->table} WHERE video_id = :video_id";
+        $params = ['video_id' => $video_id];
+        return count($this->db->fetchAll($sql, $params)) > 0;
+    }
+    
     // Busca um vídeo pelo ID
     public function getVideoById($video_id) {
         $sql = "SELECT * FROM {$this->table} WHERE video_id = :video_id";
