@@ -40,10 +40,19 @@ function createTables() {
         );
     ";
 
+    $createLanguagesTable = "
+        CREATE TABLE IF NOT EXISTS languages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            code VARCHAR(5) NOT NULL,
+            name VARCHAR(50) NOT NULL
+        );
+    ";
+
     // Executa as queries para criar as tabelas
     executeQuery($createChannelsTable);
     executeQuery($createVideosTable);
     executeQuery($createVideoTranslationsTable);
+    executeQuery($createLanguagesTable);
 }
 
 // Chama a função para criar as tabelas

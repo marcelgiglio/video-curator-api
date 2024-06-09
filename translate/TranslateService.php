@@ -1,7 +1,13 @@
 <?php
 
+require_once __DIR__ . '/../repository/LanguageRepository.php';
+
 class TranslateService {
-    private $targetLanguages = ['de', 'ar', 'en', 'es', 'pt', 'uk', 'fr', 'ru'];
+    private $languageRepository;
+
+    public function __construct() {
+        $this->languageRepository = new LanguageRepository();
+    }
 
     public function translate($text, $sourceLang, $targetLang) {
         $url = "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl={$sourceLang}&tl={$targetLang}&q=" . urlencode($text);
@@ -12,7 +18,8 @@ class TranslateService {
 
     public function translateAll($text, $sourceLang) {
         $translations = [];
-        foreach ($this->targetLanguages as $targetLang) {
+        $targetLanguages = $this->getTargetLanguages();
+        foreach ($targetLanguages as $targetLang) {
             if ($targetLang !== $sourceLang) {
                 $translations[$targetLang] = $this->translate($text, $sourceLang, $targetLang);
             }
@@ -20,13 +27,8 @@ class TranslateService {
         return $translations;
     }
 
-    public function addTargetLanguage($languageCode) {
-        if (!in_array($languageCode, $this->targetLanguages)) {
-            $this->targetLanguages[] = $languageCode;
-        }
-    }
-
     public function getTargetLanguages() {
-        return $this->targetLanguages;
+        $languages = $this->languageRepository->listLanguages();
+        return array_column($languages, 'code');
     }
 }
