@@ -1,5 +1,7 @@
 <?php
 
+set_time_limit(500); // Aumenta o limite de tempo para 300 segundos
+
 require_once __DIR__ . '/../repository/ChannelRepository.php';
 require_once __DIR__ . '/../repository/VideoRepository.php';
 require_once __DIR__ . '/../repository/VideoTranslationRepository.php';
@@ -104,8 +106,10 @@ class DailyVideoUpdater {
         $translationsDescription = $this->translateService->translateAll($description, $originalLanguage);
 
         foreach ($translationsTitle as $lang => $translatedTitle) {
-            $translatedDescription = $translationsDescription[$lang];
-            $this->videoTranslationRepository->addTranslation(
+            $translatedDescription = $translationsDescription[$lang] ?? 'No description available';
+            echo "Adicionando tradução para o vídeo ID: $videoId, Idioma: $lang, Título: $translatedTitle, Descrição: $translatedDescription <br><br>";
+
+            $this->videoTranslationRepository->addVideoTranslation(
                 $videoId,
                 $lang,
                 $translatedTitle,

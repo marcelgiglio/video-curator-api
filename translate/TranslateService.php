@@ -10,10 +10,36 @@ class TranslateService {
     }
 
     public function translate($text, $sourceLang, $targetLang) {
-        $url = "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl={$sourceLang}&tl={$targetLang}&q=" . urlencode($text);
-        $response = file_get_contents($url);
-        $responseArray = json_decode($response, true);
-        return $responseArray[0][0][0];
+        // Base URL da API de tradução
+        $baseUrl = "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl={$sourceLang}&tl={$targetLang}&q=";
+        
+        // Codificar o texto e garantir que a URL completa não ultrapasse 2000 caracteres
+        $encodedText = urlencode($text);
+        $maxLength = 2000 - strlen($baseUrl);
+        $encodedText = substr($encodedText, 0, $maxLength);
+
+        try {
+            $url = $baseUrl . $encodedText;
+            $response = file_get_contents($url);
+
+            if ($response === FALSE) {
+                error_log("Erro ao acessar a API de tradução.");
+                return null;
+            }
+
+            $responseArray = json_decode($response, true);
+
+            // Verificação para garantir que a estrutura do array está correta
+            if (is_array($responseArray) && isset($responseArray[0]) && isset($responseArray[0][0]) && isset($responseArray[0][0][0])) {
+                return $responseArray[0][0][0];
+            } else {
+                error_log("Erro na estrutura da resposta da API de tradução.");
+                return null;
+            }
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return null;
+        }
     }
 
     public function translateAll($text, $sourceLang) {
@@ -21,7 +47,10 @@ class TranslateService {
         $targetLanguages = $this->getTargetLanguages();
         foreach ($targetLanguages as $targetLang) {
             if ($targetLang !== $sourceLang) {
-                $translations[$targetLang] = $this->translate($text, $sourceLang, $targetLang);
+                $translation = $this->translate($text, $sourceLang, $targetLang);
+                if ($translation !== null) {
+                    $translations[$targetLang] = $translation;
+                }
             }
         }
         return $translations;
@@ -32,3 +61,4 @@ class TranslateService {
         return array_column($languages, 'code');
     }
 }
+?>
