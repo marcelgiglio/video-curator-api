@@ -29,7 +29,6 @@ class AddChannel {
         $channelDetails = $this->youtubeApi->getChannelDetails($channelId);
         
         if (empty($channelDetails['items'])) {
-            echo "Channel not found.\n";
             return ['status' => 'error', 'message' => 'Channel not found'];
         }
 

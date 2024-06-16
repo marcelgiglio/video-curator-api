@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../log/log.php';
 
 class YouTubeDataAPI {
     private $apiKey;
@@ -29,7 +30,6 @@ class YouTubeDataAPI {
     // Método para obter detalhes de um canal específico
     public function getChannelDetails($channelId) {
         $url = $this->apiUrl . "/channels?part=snippet,contentDetails,statistics&id={$channelId}&key={$this->apiKey}";
-        echo "Request URL: $url\n"; // Log da URL
         return $this->makeRequest($url);
     }
 
@@ -41,7 +41,7 @@ class YouTubeDataAPI {
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         $response = curl_exec($ch);
         if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
+            logError('Error:' . curl_error($ch));
         }
         curl_close($ch);
         return json_decode($response, true);

@@ -83,7 +83,6 @@ class VideoProcessor {
 
         foreach ($translationsTitle as $lang => $translatedTitle) {
             $translatedDescription = $translationsDescription[$lang] ?? 'No description available';
-            echo "Adicionando tradução para o vídeo ID: $videoId, Idioma: $lang, Título: $translatedTitle, Descrição: $translatedDescription <br><br>";
 
             $this->videoTranslationRepository->addVideoTranslation(
                 $videoId,

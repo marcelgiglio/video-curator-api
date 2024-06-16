@@ -46,7 +46,7 @@ class VideoTranslationRepository {
         $condition = "translation_id = :translation_id";
         $params = ['translation_id' => $translation_id];
         return $this->db->delete($this->table, $condition, $params);
-    }
+    }        
 
     // Lista todas as traduções de um vídeo específico
     public function listTranslationsForVideo($video_id) {

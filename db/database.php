@@ -98,9 +98,9 @@ class Database {
         return $this->executeQuery($sql, $data) !== false;
     }
 
-    public function delete($table, $condition) {
+    public function delete($table, $condition, $params = []) {
         $sql = "DELETE FROM $table WHERE $condition";
-        return $this->executeQuery($sql) !== false;
+        return $this->executeQuery($sql, $params) !== false;
     }
 
     public function closeConnection() {

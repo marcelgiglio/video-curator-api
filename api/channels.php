@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../repository/ChannelRepository.php';
+require_once __DIR__ . '/../repository/VideoRepository.php';
+require_once __DIR__ . '/../repository/VideoTranslationRepository.php';
 require_once __DIR__ . '/../youtube/AddChannel.php';
 require_once __DIR__ . '/../log/log.php';
 require_once __DIR__ . '/route.php';
@@ -8,6 +10,9 @@ require_once __DIR__ . '/route.php';
 header('Content-Type: application/json');
 
 $channelRepository = new ChannelRepository();
+$videoRepository = new VideoRepository();
+$videoTranslationRepository = new VideoTranslationRepository();
+
 
 Route::add('/api/channels/add', function() {
     $id = $_GET['id'] ?? null;
@@ -16,6 +21,34 @@ Route::add('/api/channels/add', function() {
         $addChannel = new AddChannel();
         $result = $addChannel->addNewChannel($id);
         echo json_encode($result);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Missing channel ID']);
+    }
+}, 'get');
+
+Route::add('/api/channels/delete', function() use ($channelRepository, $videoRepository, $videoTranslationRepository) {
+    $channelId = $_GET['id'] ?? null;
+    
+    if ($channelId) {
+        $channel = $channelRepository->getChannelById($channelId);
+        
+        if ($channel) {
+            // Deletar traduções de vídeos
+            $videos = $videoRepository->listVideosByChannelId($channelId);
+            foreach ($videos as $video) {
+                $translations = $videoTranslationRepository->listTranslationsForVideo($video['video_id']);
+                foreach ($translations as $translation) {
+                    $videoTranslationRepository->deleteVideoTranslation($translation['translation_id']);
+                }
+                // Deletar vídeos
+                $videoRepository->deleteVideo($video['video_id']);
+            }
+            // Deletar o canal
+            $channelRepository->deleteChannel($channelId);
+            echo json_encode(['status' => 'success', 'message' => 'Channel and related data deleted successfully']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Channel not found']);
+        }
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Missing channel ID']);
     }

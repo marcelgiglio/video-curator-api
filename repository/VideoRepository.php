@@ -72,6 +72,7 @@ class VideoRepository {
         return $this->db->delete($this->table, $condition, $params);
     }
 
+
     // Lista todos os vídeos
     public function listVideos() {
         $sql = "SELECT * FROM {$this->table}";
