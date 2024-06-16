@@ -21,8 +21,8 @@ class AddChannel {
     public function addNewChannel($channelId) {
         // Verifica se o canal já existe no banco de dados
         if ($this->channelRepository->channelExists($channelId)) {
-            echo "Channel already exists in the database.\n";
-            return;
+            logError("Channel already exists in the database: " . $channelId);
+            return ['status' => 'error', 'message' => 'Channel already exists'];
         }
         
         // Busca informações do canal na API do YouTube
@@ -30,7 +30,7 @@ class AddChannel {
         
         if (empty($channelDetails['items'])) {
             echo "Channel not found.\n";
-            return;
+            return ['status' => 'error', 'message' => 'Channel not found'];
         }
 
         $channelInfo = $channelDetails['items'][0];
@@ -55,11 +55,9 @@ class AddChannel {
                 logError("Video ID missing for a video in channel: " . $channelId);
             }
         }
+        
+        return ['status' => 'success', 'message' => 'Channel added successfully'];
+
     }
 }
-// Exemplo de uso
-$channelId = 'UC4SGEFLhodm2qLwytaznGbQ'; // Substitua pelo ID do canal que deseja adicionar
-$addChannel = new AddChannel();
-$addChannel->addNewChannel($channelId);
-
 ?>

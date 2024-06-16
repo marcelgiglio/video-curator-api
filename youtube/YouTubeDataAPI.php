@@ -29,6 +29,7 @@ class YouTubeDataAPI {
     // Método para obter detalhes de um canal específico
     public function getChannelDetails($channelId) {
         $url = $this->apiUrl . "/channels?part=snippet,contentDetails,statistics&id={$channelId}&key={$this->apiKey}";
+        echo "Request URL: $url\n"; // Log da URL
         return $this->makeRequest($url);
     }
 

@@ -23,7 +23,6 @@ class ChannelRepository {
         return $this->db->insert($this->table, $data);
     }
 
-
     public function channelExists($channelId) {
         $query = "SELECT COUNT(*) as count FROM channels WHERE channel_id = :channel_id";
         $params = ['channel_id' => $channelId];
