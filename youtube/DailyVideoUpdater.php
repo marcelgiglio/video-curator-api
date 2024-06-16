@@ -1,27 +1,21 @@
 <?php
 
-set_time_limit(500); // Aumenta o limite de tempo para 300 segundos
+set_time_limit(1000); // Aumenta o limite de tempo para 1000 segundos
 
 require_once __DIR__ . '/../repository/ChannelRepository.php';
-require_once __DIR__ . '/../repository/VideoRepository.php';
-require_once __DIR__ . '/../repository/VideoTranslationRepository.php';
-require_once __DIR__ . '/../translate/TranslateService.php';
 require_once __DIR__ . '/YouTubeDataAPI.php';
 require_once __DIR__ . '/../log/log.php';
+require_once __DIR__ . '/VideoProcessor.php';
 
 class DailyVideoUpdater {
     private $youtubeApi;
-    private $videoRepository;
+    private $videoProcessor;
     private $channelRepository;
-    private $translateService;
-    private $videoTranslationRepository;
 
     public function __construct() {
         $this->youtubeApi = new YouTubeDataAPI();
-        $this->videoRepository = new VideoRepository();
         $this->channelRepository = new ChannelRepository();
-        $this->translateService = new TranslateService();
-        $this->videoTranslationRepository = new VideoTranslationRepository();
+        $this->videoProcessor = new VideoProcessor($this->youtubeApi);
     }
 
     public function updateVideos() {
@@ -37,7 +31,7 @@ class DailyVideoUpdater {
                 if (isset($video['id']['videoId'])) {
                     $videoId = $video['id']['videoId'];
                     if (!$this->videoRepository->videoExists($videoId)) {
-                        $this->processVideo($channel['channel_id'], $videoId);
+                        $this->videoProcessor->processVideo($channel['channel_id'], $videoId);
                     }
                 } else {
                     logError("Video ID missing for a video in channel: " . $channel['channel_id']);
@@ -45,81 +39,9 @@ class DailyVideoUpdater {
             }
         }
     }
-
-    private function processVideo($channelId, $videoId) {
-        $videoDetails = $this->youtubeApi->getVideoDetails($videoId);
-
-        $title = $videoDetails['items'][0]['snippet']['title'] ?? 'No title';
-        $description = $videoDetails['items'][0]['snippet']['description'] ?? 'No description';
-        $originalLanguage = $videoDetails['items'][0]['snippet']['defaultAudioLanguage'] ?? 'unknown';
-        $publishedAt = $videoDetails['items'][0]['snippet']['publishedAt'] ?? date('Y-m-d');
-        $duration = $videoDetails['items'][0]['contentDetails']['duration'] ?? 'PT0M';
-
-        $thumbnailUrl = $videoDetails['items'][0]['snippet']['thumbnails']['default']['url'] ?? null;
-        $thumbnailPath = $this->saveThumbnail($thumbnailUrl, $videoId);
-
-        $this->videoRepository->addVideo(
-            $videoId,
-            $channelId,
-            $title,
-            $description,
-            $originalLanguage,
-            $publishedAt,
-            $duration,
-            'https://www.youtube.com/watch?v=' . $videoId,
-            $thumbnailPath
-        );
-
-        // Adiciona traduções
-        $this->addTranslations($videoId, $title, $description, $originalLanguage);
-    }
-
-    private function saveThumbnail($url, $videoId) {
-        $thumbnailDir = __DIR__ . '/../thumbnails/';
-        if (!is_dir($thumbnailDir)) {
-            mkdir($thumbnailDir, 0755, true);
-        }
-
-        $thumbnailPath = $thumbnailDir . $videoId . '.jpg';
-
-        if ($url) {
-            $thumbnailData = file_get_contents($url);
-            if ($thumbnailData !== false) {
-                file_put_contents($thumbnailPath, $thumbnailData);
-            } else {
-                logError("Failed to download thumbnail for video ID: $videoId, URL: $url");
-                $thumbnailPath = $this->getDefaultThumbnailPath();
-            }
-        } else {
-            $thumbnailPath = $this->getDefaultThumbnailPath();
-        }
-
-        return 'thumbnails/' . basename($thumbnailPath);
-    }
-
-    private function getDefaultThumbnailPath() {
-        return __DIR__ . '/../thumbnails/default.jpg';
-    }
-
-    private function addTranslations($videoId, $title, $description, $originalLanguage) {
-        $translationsTitle = $this->translateService->translateAll($title, $originalLanguage);
-        $translationsDescription = $this->translateService->translateAll($description, $originalLanguage);
-
-        foreach ($translationsTitle as $lang => $translatedTitle) {
-            $translatedDescription = $translationsDescription[$lang] ?? 'No description available';
-            echo "Adicionando tradução para o vídeo ID: $videoId, Idioma: $lang, Título: $translatedTitle, Descrição: $translatedDescription <br><br>";
-
-            $this->videoTranslationRepository->addVideoTranslation(
-                $videoId,
-                $lang,
-                $translatedTitle,
-                $translatedDescription
-            );
-        }
-    }
 }
 
 // Exemplo de uso
 $updater = new DailyVideoUpdater();
 $updater->updateVideos();
-?>
+

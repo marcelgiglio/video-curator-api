@@ -11,8 +11,9 @@ class ChannelRepository {
     }
 
     // Adiciona um novo canal ao banco de dados
-    public function addChannel($name, $country, $language, $url, $description) {
+    public function addChannel($channelId, $name, $country, $language, $url, $description) {
         $data = [
+            'channel_id' => $channelId,
             'name' => $name,
             'country' => $country,
             'language' => $language,
@@ -22,6 +23,15 @@ class ChannelRepository {
         return $this->db->insert($this->table, $data);
     }
 
+
+    public function channelExists($channelId) {
+        $query = "SELECT COUNT(*) as count FROM channels WHERE channel_id = :channel_id";
+        $params = ['channel_id' => $channelId];
+        $result = $this->db->fetchOne($query, $params);
+    
+        return $result['count'] > 0;
+    }
+    
     // Busca um canal pelo ID
     public function getChannelById($channel_id) {
         $sql = "SELECT * FROM {$this->table} WHERE channel_id = :channel_id";
