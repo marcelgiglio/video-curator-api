@@ -16,12 +16,12 @@ Route::add('/api/videos', function() use ($videoRepository) {
     echo json_encode($videos);
 }, 'get');
 
-Route::add('/api/videos/([0-9]+)', function($id) use ($videoRepository) {
+Route::add('/api/videos/([a-zA-Z0-9_-]+)', function($id) use ($videoRepository) {
     $video = $videoRepository->getVideoById($id);
     echo json_encode($video);
 }, 'get');
 
-Route::add('/api/videos/channel/([0-9]+)', function($channelId) use ($videoRepository) {
+Route::add('/api/videos/channel/([a-zA-Z0-9_-]+)', function($channelId) use ($videoRepository) {
     $videos = $videoRepository->getVideosByChannel($channelId);
     echo json_encode($videos);
 }, 'get');
@@ -31,7 +31,7 @@ Route::add('/api/videos/recent', function() use ($videoRepository) {
     echo json_encode($videos);
 }, 'get');
 
-Route::add('/api/videos/recent/country/([a-zA-Z]+)', function($country) use ($videoRepository) {
+Route::add('/api/videos/recent/country/([a-zA-Z0-9_-]+)', function($country) use ($videoRepository) {
     $videos = $videoRepository->getRecentVideosByCountry($country);
     echo json_encode($videos);
 }, 'get');
@@ -43,7 +43,7 @@ Route::add('/api/videos/search', function() use ($videoSearch) {
     echo json_encode($videos);
 }, 'get');
 
-Route::add('/api/videos/([0-9]+)/translations', function($videoId) use ($videoTranslationRepository) {
+Route::add('/api/videos/([a-zA-Z0-9_-]+)/translations', function($videoId) use ($videoTranslationRepository) {
     $translations = $videoTranslationRepository->listTranslationsForVideo($videoId);
     echo json_encode($translations);
 }, 'get');

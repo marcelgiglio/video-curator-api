@@ -32,6 +32,15 @@ class YouTubeDataAPI {
         $url = $this->apiUrl . "/channels?part=snippet,contentDetails,statistics&id={$channelId}&key={$this->apiKey}";
         return $this->makeRequest($url);
     }
+    
+    public function getChannelDetailsByUsername($username) {
+        $url = $this->apiUrl . "/search?part=snippet&type=channel&q={$username}&key={$this->apiKey}";
+        $response = $this->makeRequest($url);
+        if (isset($response['items'][0]['id']['channelId'])) {
+            return $this->getChannelDetails($response['items'][0]['id']['channelId']);
+        }
+        return null;
+    }
 
     // Método para fazer a requisição à API
     private function makeRequest($url) {

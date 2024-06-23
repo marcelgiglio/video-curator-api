@@ -106,8 +106,16 @@ class ChannelRepository {
         $params = ['name' => $name];
         return $this->db->fetchOne($sql, $params);
     }
+    
+    // Busca um canal pelo nome usando LIKE para pesquisa parcial
+    public function searchChannelByName($name) {
+        $sql = "SELECT * FROM {$this->table} WHERE name LIKE :name";
+        $params = ['name' => '%' . $name . '%'];
+        return $this->db->fetchAll($sql, $params);
+    }
 
-    // Busca canais recentemente adicionados (últimos 30 dias)
+
+    // Busca canais recentemente adicionados (últimos 30 dias) - não funciona, pq não tenho o created_at no bd
     public function getRecentChannels() {
         $sql = "SELECT * FROM {$this->table} WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
         return $this->db->fetchAll($sql);
