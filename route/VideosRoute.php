@@ -1,9 +1,9 @@
 <?php
 
 require_once __DIR__ . '/../repository/VideoRepository.php';
-require_once __DIR__ . '/../repository/VideoSearch.php';
+require_once __DIR__ . '/../repository/VideoSearchRepository.php';
 require_once __DIR__ . '/../repository/VideoTranslationRepository.php';
-require_once __DIR__ . '/route.php';
+require_once __DIR__ . '/RouteRoute.php';
 
 header('Content-Type: application/json');
 

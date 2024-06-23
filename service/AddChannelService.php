@@ -3,8 +3,8 @@
 set_time_limit(1000); // Aumenta o limite de tempo para 1000 segundos
 
 require_once __DIR__ . '/../repository/ChannelRepository.php';
-require_once __DIR__ . '/../youtube/VideoProcessor.php';
-require_once __DIR__ . '/YouTubeDataAPI.php';
+require_once __DIR__ . '/VideoProcessorService.php';
+require_once __DIR__ . '/../gateway/YouTubeGateway.php';
 require_once __DIR__ . '/../log/log.php';
 
 class AddChannel {

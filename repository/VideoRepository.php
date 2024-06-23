@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../db/database.php';
+require_once __DIR__ . '/../db/DatabaseDb.php';
 
 class VideoRepository {
     private $db;

@@ -3,9 +3,9 @@
 require_once __DIR__ . '/../repository/ChannelRepository.php';
 require_once __DIR__ . '/../repository/VideoRepository.php';
 require_once __DIR__ . '/../repository/VideoTranslationRepository.php';
-require_once __DIR__ . '/../youtube/AddChannel.php';
+require_once __DIR__ . '/../service/AddChannelService.php';
+require_once __DIR__ . '/RouteRoute.php';
 require_once __DIR__ . '/../log/log.php';
-require_once __DIR__ . '/route.php';
 
 header('Content-Type: application/json');
 

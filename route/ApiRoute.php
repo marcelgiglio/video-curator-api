@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/route.php';
+require_once __DIR__ . '/RouteRoute.php';
 
 header('Content-Type: application/json');
 

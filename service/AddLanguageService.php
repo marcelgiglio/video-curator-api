@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/TranslateService.php';
+require_once __DIR__ . '/../gateway/TranslateGateway.php';
 require_once __DIR__ . '/../repository/VideoRepository.php';
 require_once __DIR__ . '/../repository/VideoTranslationRepository.php';
 require_once __DIR__ . '/../repository/LanguageRepository.php';
