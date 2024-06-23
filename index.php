@@ -3,7 +3,7 @@
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 if (preg_match('#^/api/#', $uri)) {
-    require_once __DIR__ . '/api/api.php';
+    require_once __DIR__ . '/routes/api.php';
 } else {
     // Servir uma página HTML básica para acessos diretos
     header('Content-Type: text/html');
