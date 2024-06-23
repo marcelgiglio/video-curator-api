@@ -1,3 +1,8 @@
+# Configuração de ambiente
 .env
-log/
+
+# Arquivo de log local
+log/error.log
+
+# Diretórios de imagens
 /thumbnails
