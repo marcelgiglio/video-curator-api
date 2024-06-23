@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../db/DatabaseDb.php';
+require_once __DIR__ . '/../log/log.php';
 
 class VideoRepository {
     private $db;
@@ -86,11 +87,12 @@ class VideoRepository {
         return $this->db->fetchAll($sql, $params);
     }
     
-    // Função para retornar vídeos recentes
     public function getRecentVideos() {
         $sql = "SELECT * FROM {$this->table} WHERE publication_date >= DATE_SUB(NOW(), INTERVAL 14 DAY) ORDER BY publication_date DESC";
-        return $this->db->fetchAll($sql);
+        $results = $this->db->fetchAll($sql);
+        return $results;
     }
+    
 
     // Função para retornar vídeos recentes por país
     public function getRecentVideosByCountry($country) {

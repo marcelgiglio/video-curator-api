@@ -58,6 +58,12 @@ Route::add('/api/channels/search', function() {
     echo json_encode($result);
 }, 'get');
 
+Route::add('/api/channels/([a-zA-Z0-9_-]+)', function($id) {
+    require_once __DIR__ . '/../service/GetChannelService.php';
+    $result = getChannelById($id);
+    echo json_encode($result);
+}, 'get');
+
 Route::add('/api/channels', function() {
     require_once __DIR__ . '/../service/ListChannelsService.php';
     $params = $_GET;
@@ -70,12 +76,6 @@ Route::add('/api/channels', function() {
     } else {
         $result = listChannels();
     }
-    echo json_encode($result);
-}, 'get');
-
-Route::add('/api/channels/([a-zA-Z0-9_-]+)', function($id) {
-    require_once __DIR__ . '/../service/GetChannelService.php';
-    $result = getChannelById($id);
     echo json_encode($result);
 }, 'get');
 

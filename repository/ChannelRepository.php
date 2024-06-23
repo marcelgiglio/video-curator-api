@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../db/DatabaseDb.php';
+require_once __DIR__ . '/../log/log.php';
 
 class ChannelRepository {
     private $db;
@@ -106,7 +107,7 @@ class ChannelRepository {
         $params = ['name' => $name];
         return $this->db->fetchOne($sql, $params);
     }
-    
+
     // Busca um canal pelo nome usando LIKE para pesquisa parcial
     public function searchChannelByName($name) {
         $sql = "SELECT * FROM {$this->table} WHERE name LIKE :name";

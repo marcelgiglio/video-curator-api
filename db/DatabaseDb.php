@@ -57,11 +57,7 @@ class Database {
             $stmt->execute($params);
             return $stmt;
         } catch(PDOException $e) {
-            // Loga o erro internamente, sem expor detalhes ao usuário.
-            // A função logError é um placeholder para sua implementação de log.
             logError($e->getMessage());
-
-            // Retorna false para indicar falha na execução.
             return false;
         }
     }

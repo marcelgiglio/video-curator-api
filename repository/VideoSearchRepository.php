@@ -1,6 +1,7 @@
 <?php
 // Inclusão da classe Database para operações de banco de dados.
-require_once '/../db/DatabaseDb.php';
+require_once __DIR__ . '/../db/DatabaseDb.php';
+require_once __DIR__ . '/../log/log.php';
 
 /**
  * A classe FilterRegistry é responsável por registrar e fornecer instâncias de filtros.

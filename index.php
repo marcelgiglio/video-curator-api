@@ -37,7 +37,9 @@ if (preg_match('#^/api/#', $uri)) {
     // Define as rotas que não devem ser exibidas
     $excludedRoutes = [
         '/api/channels/add',
-        '/api/channels/delete'
+        '/api/channels/delete',
+        '/api/videos/search',
+        '/api/channels/recent'
     ];
     
     echo '<!DOCTYPE html>
@@ -105,11 +107,21 @@ if (preg_match('#^/api/#', $uri)) {
     if (!empty($routes)) {
         echo '<ul>';
         
-        foreach ($routes as $route) {
-            // Substitui o padrão ([a-zA-Z0-9_-]+) por 'example-id'
-            $displayRoute = preg_replace('/\(\[a-zA-Z0-9_\-\]\+\)/', '[id]', $route);
-            $exampleRoute = preg_replace('/\(\[a-zA-Z0-9_\-\]\+\)/', 'example-id', $route);
+        // Inverte a ordem das rotas
+        $routes = array_reverse($routes);
         
+        foreach ($routes as $route) {
+            
+            // Verifica se a rota contém "country" e substitui o padrão ([a-zA-Z0-9_-]+) por 'example-country'
+                if (strpos($route, 'country') !== false) {
+                    $displayRoute = preg_replace('/\(\[a-zA-Z0-9_\-\]\+\)/', '[country]', $route);
+                    $exampleRoute = preg_replace('/\(\[a-zA-Z0-9_\-\]\+\)/', 'example-country', $route);
+                } else {
+                    // Substitui o padrão ([a-zA-Z0-9_-]+) por 'example-id' para outras rotas
+                    $displayRoute = preg_replace('/\(\[a-zA-Z0-9_\-\]\+\)/', '[id]', $route);
+                    $exampleRoute = preg_replace('/\(\[a-zA-Z0-9_\-\]\+\)/', 'example-id', $route);
+                }
+            
             // Exclui as rotas definidas
             if (in_array($route, $excludedRoutes)) {
                 continue;
