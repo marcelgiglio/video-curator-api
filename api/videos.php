@@ -48,6 +48,6 @@ Route::add('/api/videos/([0-9]+)/translations', function($videoId) use ($videoTr
     echo json_encode($translations);
 }, 'get');
 
-Route::run('/api/videos');
+Route::run();
 
 ?>

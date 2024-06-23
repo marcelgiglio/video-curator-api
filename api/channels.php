@@ -55,6 +55,7 @@ Route::add('/api/channels/delete', function() use ($channelRepository, $videoRep
 }, 'get');
 
 Route::add('/api/channels/recent', function() use ($channelRepository) {
+    //ainda não funciona
     $result = $channelRepository->getRecentChannels();
     echo json_encode($result);
 }, 'get');
@@ -70,6 +71,7 @@ Route::add('/api/channels/counts/country', function() use ($channelRepository) {
 }, 'get');
 
 Route::add('/api/channels/search', function() use ($channelRepository) {
+    //ainda não funciona, nem tentei...
     $params = $_GET;
     if (isset($params['name'])) {
         $result = $channelRepository->getChannelByName($params['name']);
@@ -81,6 +83,7 @@ Route::add('/api/channels/search', function() use ($channelRepository) {
 }, 'get');
 
 Route::add('/api/channels', function() use ($channelRepository) {
+    //ainda não funciona, dá erro 404
     $params = $_GET;
     if (isset($params['language']) && isset($params['country'])) {
         $result = $channelRepository->getChannelsByLanguageAndCountry($params['language'], $params['country']);
@@ -99,6 +102,6 @@ Route::add('/api/channels/([a-zA-Z0-9_-]+)', function($id) use ($channelReposito
     echo json_encode($result);
 }, 'get');
 
-Route::run('/');
+Route::run();
 
 ?>
